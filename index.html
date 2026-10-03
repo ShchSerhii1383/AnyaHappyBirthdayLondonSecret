@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The London Case</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ============ SCENE 0: TITLE CARD ============ -->
+<section id="scene-title" class="scene scene--title">
+  <div class="title-card">
+    <p class="title-eyebrow">CONFIDENTIAL</p>
+    <h1 class="title-heading">THE LONDON CASE</h1>
+    <p class="title-sub">The Case of the Sealed Birthday Letter</p>
+    <p class="title-lines">Three clues.<br>Three numbers.<br>One sealed message.</p>
+  </div>
+</section>
+
+<!-- ============ SCENE 1: DETECTIVE BOARD (cinematic 16:9 stage) ============ -->
+<section id="scene-board" class="scene scene--board" hidden>
+  <div class="stage" id="stage">
+
+    <!-- room ambience -->
+    <div class="room-glow" aria-hidden="true"></div>
+
+    <!-- the board photograph itself -->
+    <img class="board-img" src="assets/images/board/board.png" alt="Detective board" draggable="false">
+
+    <!-- animated rain, clipped to the window pane baked into the board photo -->
+    <div class="window-rain" id="window-rain" aria-hidden="true"></div>
+
+    <!-- EVIDENCE: NEWSPAPER -->
+    <button type="button" class="evidence evidence--newspaper" data-evidence="newspaper" aria-label="The London Daily newspaper">
+      <span class="evidence-tooltip">Examine</span>
+      <img src="assets/images/newspaper/newspaper.png" alt="The London Daily newspaper" draggable="false">
+    </button>
+
+    <!-- EVIDENCE: WATCH -->
+    <button type="button" class="evidence evidence--watch" data-evidence="clock" aria-label="Pocket watch">
+      <span class="evidence-tooltip">Examine</span>
+      <img src="assets/images/clock/watch.png" alt="Pocket watch" draggable="false">
+    </button>
+
+    <!-- EVIDENCE: LETTER -->
+    <button type="button" class="evidence evidence--letter" data-evidence="letter" aria-label="Sealed letter">
+      <span class="evidence-tooltip">Examine</span>
+      <img src="assets/images/letter/letter.png" alt="Sealed letter" draggable="false">
+    </button>
+
+    <!-- CODE BOX -->
+    <div class="lockbox" id="lockbox">
+      <img class="box-img box-img--closed" id="box-closed" src="assets/images/lock/box_close.png" alt="Locked case box" draggable="false">
+      <img class="box-img box-img--open" id="box-open" src="assets/images/lock/box_open.png" alt="Opened case box" draggable="false">
+
+      <div class="drums">
+        <div class="drum" data-drum="0"><span class="drum-digit">1</span></div>
+        <div class="drum" data-drum="1"><span class="drum-digit">1</span></div>
+        <div class="drum" data-drum="2"><span class="drum-digit">1</span></div>
+      </div>
+
+      <button type="button" class="lockbox-hotspot" id="lockbox-hotspot" aria-label="Try the lock"></button>
+      <p class="lockbox-message" id="lockbox-message">&nbsp;</p>
+
+      <!-- the sealed letter, resting inside the box — only visible once it's open -->
+      <button type="button" class="box-envelope" id="box-envelope" aria-label="Take the sealed letter">
+        <img src="assets/images/envelope/letter_close.png" alt="Sealed letter" draggable="false">
+      </button>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============ EVIDENCE ZOOM LAYER (the physical item IS the modal) ============ -->
+<div class="zoom-layer" id="zoom-layer" hidden>
+  <div class="zoom-backdrop" id="zoom-backdrop"></div>
+  <img class="zoom-img" id="zoom-img" src="" alt="" draggable="false">
+</div>
+
+<!-- ============ SCENE 2: FADE TO BLACK / ENVELOPE ============ -->
+<section id="scene-envelope" class="scene scene--envelope" hidden>
+  <div class="dust-layer" aria-hidden="true">
+    <span class="mote m1"></span><span class="mote m2"></span><span class="mote m3"></span><span class="mote m4"></span>
+  </div>
+  <div class="light-beam" aria-hidden="true"></div>
+  <button type="button" class="envelope" id="envelope" aria-label="Open the sealed envelope">
+    <img class="envelope-img envelope-img--closed" id="envelope-closed" src="assets/images/envelope/letter_close.png" alt="Sealed envelope" draggable="false">
+    <img class="envelope-img envelope-img--open" id="envelope-open" src="assets/images/envelope/letter_open.png" alt="Opened envelope with the letter inside" draggable="false">
+  </button>
+</section>
+
+<!-- ============ SCENE 3: FINAL CASE DOSSIER ============ -->
+<section id="scene-letter" class="scene scene--letter-final" hidden>
+  <div class="dossier" id="dossier">
+
+    <!-- personal photo, layered UNDER the dossier art so the art's own
+         photo-corners/paperclip/frame naturally overlap its edges -->
+    <div class="dossier-photo-frame">
+      <img class="dossier-photo" id="dossier-photo" src="assets/images/dossier/photo.jpg" alt="" draggable="false">
+    </div>
+
+    <!-- the dossier photograph itself — already contains all of the
+         printed decoration (LONDON DETECTIVE BUREAU, CASE №674, evidence
+         tag, confidential stamp, etc.), so none of that is duplicated in HTML -->
+    <img class="dossier-art" src="assets/images/dossier/dossier.png" alt="London Detective Bureau — final case report, case number 674" draggable="false">
+
+    <!-- the report itself lives in HTML (not baked into the art) so it
+         stays editable and legible -->
+    <div class="dossier-report" id="dossier-report">
+      <p class="report-evidence-title" data-step="ev-title">РЕЧОВІ ДОКАЗИ</p>
+      <ul class="report-evidence-list">
+        <li data-step="ev-1">Газета — досліджена.</li>
+        <li data-step="ev-2">Годинник — перевірений.</li>
+        <li data-step="ev-3">Відображення — помічене.</li>
+        <li data-step="ev-4">Код — розгаданий.</li>
+      </ul>
+      <p class="report-status" data-step="status">СТАТУС СПРАВИ: РОЗКРИТО</p>
+      <p class="report-line" data-step="lead-in">Але головна знахідка цієї справи — не код 674.</p>
+      <p class="report-wish" data-step="wish">Нехай тобі завжди вистачає цікавості помічати те, повз що інші проходять, ставити нові запитання, знаходити несподівані відповіді й відкривати для себе ще більше дивовижного.</p>
+      <p class="report-emphasis" data-step="emphasis">Не втрачай свою цікавість.</p>
+      <p class="report-closing" data-step="closing">З нею світ завжди приховує ще одну історію, яку варто відкрити.</p>
+    </div>
+
+    <div class="case-closed-stamp" id="case-closed-stamp" hidden>
+      <span class="stamp-main">CASE CLOSED</span>
+      <span class="stamp-sub">LONDON — THE BIRTHDAY CASE</span>
+    </div>
+  </div>
+
+  <button type="button" class="ticket-button" id="return-btn" hidden>ПОВЕРНУТИСЯ НА МАПУ</button>
+</section>
+
+<script src="js/game.js"></script>
+</body>
+</html>

@@ -1,0 +1,496 @@
+/* =========================================================
+   THE LONDON CASE — stylesheet (real-asset composition)
+   ========================================================= */
+
+:root{
+  --navy-deep:  #0d0e17;
+  --violet:     #241f38;
+  --amber:      #e6b96a;
+  --wax:        #7c1f24;
+
+  --font-display: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  --font-body:    Georgia, 'Times New Roman', serif;
+  --font-hand:    'Segoe Script', 'Bradley Hand', 'Comic Sans MS', cursive;
+
+  /* ---- COMPOSITION: percentages relative to the 16:9 .stage ---- */
+  --newspaper-x: 29%;  --newspaper-y: 43%;  --newspaper-w: 25%;  --newspaper-rot: -3deg;
+  --watch-x:     74%;  --watch-y:     28%;  --watch-w:     16%;  --watch-rot:      4deg;
+  --letter-x:    71%;  --letter-y:    61%;  --letter-w:    19%;  --letter-rot:     3deg;
+  --box-x:       50%;  --box-y:       83%;  --box-w:       27%;
+
+  /* the sealed letter resting inside the open box — percentages relative
+     to the .lockbox element itself (which matches the box artwork's own
+     1672x941 canvas 1:1), measured against the velvet-lined lid interior */
+  --box-envelope-x: 50%;  --box-envelope-y: 28%;  --box-envelope-w: 26%;
+
+  /* the final dossier — percentages relative to .dossier, which is locked
+     to the art's own 1536x1024 canvas ratio via aspect-ratio, so these map
+     1:1 onto the source PNG's pixels regardless of how big .dossier renders.
+     The photo box sits safely INSIDE the transparent "evidence photo"
+     window cut into the dossier art (inset well past its edges, not just
+     the window's own bounding box — the window itself is a slightly
+     rotated/torn-paper shape, so a rectangle sized to its outer bbox pokes
+     past the drawn photo-corners at two opposite corners). The report box
+     is the blank paper area on the right-hand page, widened as far right
+     as it can go before the red cord/wax tags. Both measured directly off
+     the source file. The report's left edge starts past the torn paper
+     flap on the lower-left of the right page (it reaches ~57%), and the
+     box is centered on the page header's own axis (~72%), so centered
+     lines line up with "FINAL CASE REPORT" above them. */
+  --dossier-photo-x: 15.8%;  --dossier-photo-y: 20.6%;
+  --dossier-photo-w: 29.2%;  --dossier-photo-h: 49.2%;
+  --dossier-report-x: 58%;   --dossier-report-y: 35%;
+  --dossier-report-w: 28%;   --dossier-report-h: 50%;
+
+  /* which part of the photo shows through its (portrait-cropped-to-roughly-
+     square) window — nudge these if a different photo needs reframing */
+  --photo-x: 50%;  --photo-y: 12%;
+
+  --shadow-soft: 0 8px 24px rgba(0,0,0,0.45);
+  --shadow-deep: 0 18px 50px rgba(0,0,0,0.65);
+}
+
+*{ box-sizing:border-box; }
+html,body{
+  margin:0; padding:0; width:100%; height:100%;
+  background:var(--navy-deep); color:#ece1c4;
+  font-family:var(--font-body);
+  overflow:hidden;
+  -webkit-user-select:none; user-select:none;
+}
+button{ font-family:inherit; cursor:pointer; background:none; border:none; padding:0; }
+img{ -webkit-user-drag:none; }
+
+@media (prefers-reduced-motion: reduce){
+  *{ animation-duration:0.001ms !important; transition-duration:0.001ms !important; }
+}
+
+.scene{ position:fixed; inset:0; width:100%; height:100%; }
+[hidden]{ display:none !important; }
+
+/* ---------------------------------------------------------
+   SCENE 0 — Title
+--------------------------------------------------------- */
+.scene--title{
+  z-index:50; display:flex; align-items:center; justify-content:center;
+  background:radial-gradient(ellipse at center, #221d30 0%, #0d0e16 75%);
+  animation:titleFadeOut 1s ease 3.4s forwards;
+}
+.title-card{ text-align:center; animation:titleFadeIn 1.6s ease both; }
+.title-eyebrow{ letter-spacing:0.5em; font-size:0.8rem; color:var(--amber); margin:0 0 18px; opacity:0.85; }
+.title-heading{
+  font-family:var(--font-display); font-weight:900; font-size:clamp(2.4rem, 6vw, 4.4rem);
+  color:#ece1c4; margin:0 0 10px; text-shadow:0 0 30px rgba(230,185,106,0.25); letter-spacing:0.04em;
+}
+.title-sub{ font-style:italic; color:#c9b98d; font-size:1.1rem; margin:0 0 34px; }
+.title-lines{ font-family:var(--font-hand); font-size:1.4rem; color:var(--amber); line-height:1.8; opacity:0.9; }
+@keyframes titleFadeIn{ from{ opacity:0; transform:translateY(14px);} to{ opacity:1; transform:none; } }
+@keyframes titleFadeOut{ from{ opacity:1; visibility:visible; } to{ opacity:0; visibility:hidden; pointer-events:none; } }
+
+/* ---------------------------------------------------------
+   SCENE 1 — cinematic stage
+--------------------------------------------------------- */
+.scene--board{
+  z-index:10; background:var(--navy-deep);
+  display:flex; align-items:center; justify-content:center;
+  animation:boardReveal 1.6s ease both;
+}
+@keyframes boardReveal{ from{ opacity:0; filter:brightness(0.25); } to{ opacity:1; filter:brightness(1); } }
+
+.stage{
+  position:relative;
+  width:min(96vw, calc(96vh * 16 / 9));
+  aspect-ratio:16/9;
+  background:
+    radial-gradient(ellipse at 50% 34%, #34304a 0%, transparent 62%),
+    linear-gradient(160deg, var(--violet) 0%, #17162280 45%, var(--navy-deep) 100%);
+  border-radius:4px;
+  overflow:visible;
+  box-shadow:0 0 140px rgba(0,0,0,0.6) inset;
+}
+.room-glow{
+  position:absolute; inset:0; pointer-events:none; z-index:1;
+  background:radial-gradient(ellipse at 50% 8%, rgba(230,185,106,0.10), transparent 55%);
+}
+
+/* the board photo — occupies ~84% of the stage, centered */
+.board-img{
+  position:absolute; left:50%; top:46%; transform:translate(-50%,-50%);
+  width:84%; height:auto; display:block;
+  z-index:10;
+  filter:drop-shadow(0 30px 46px rgba(0,0,0,0.6));
+  pointer-events:none;
+}
+
+/* ---------------------------------------------------------
+   ANIMATED RAIN — individual falling drops, clipped to the
+   window pane baked into the board photo (measured in px
+   against the source PNG, expressed here as stage percent)
+--------------------------------------------------------- */
+.window-rain{
+  position:absolute;
+  left:8.1%; top:4.2%; width:6.4%; height:46%;
+  overflow:hidden; z-index:11; pointer-events:none;
+  border-radius:1px;
+}
+.raindrop{
+  position:absolute; top:-12%;
+  width:var(--w, 2px);
+  height:var(--len, 30px);
+  background:linear-gradient(
+    to bottom,
+    transparent,
+    rgba(215,230,255,0.85) 35%,
+    rgba(215,230,255,0.35) 75%,
+    transparent
+  );
+  border-radius:40%;
+  filter:blur(0.3px);
+  opacity:0;
+  animation-name:dropFall;
+  animation-timing-function:linear;
+  animation-iteration-count:infinite;
+}
+@keyframes dropFall{
+  0%{ transform:translate(0, 0); opacity:0; }
+  6%{ opacity:var(--op, 0.75); }
+  90%{ opacity:var(--op, 0.75); }
+  100%{ transform:translate(var(--dx, 8px), 780%); opacity:0; }
+}
+/* faint moving sheen across the wet glass, very subtle */
+.window-rain::after{
+  content:'';
+  position:absolute; inset:0;
+  background:linear-gradient(115deg, transparent 40%, rgba(200,220,255,0.06) 50%, transparent 60%);
+  background-size:220% 220%;
+  animation:glassSheen 7s ease-in-out infinite;
+  mix-blend-mode:screen;
+}
+@keyframes glassSheen{
+  0%,100%{ background-position:0% 0%; }
+  50%{ background-position:100% 60%; }
+}
+
+/* ---- evidence items ---- */
+.evidence{
+  position:absolute;
+  left:var(--x); top:var(--y); width:var(--w);
+  transform:translate(-50%,-50%) rotate(var(--rot));
+  z-index:30;
+  transition:transform 0.28s ease, filter 0.28s ease;
+  filter:drop-shadow(0 10px 18px rgba(0,0,0,0.5));
+}
+.evidence img{ width:100%; height:auto; display:block; pointer-events:none; }
+.evidence:hover, .evidence:focus-visible{
+  transform:translate(-50%,-50%) rotate(calc(var(--rot) * 0.35)) scale(1.045);
+  filter:drop-shadow(0 16px 26px rgba(0,0,0,0.6)) drop-shadow(0 0 18px rgba(230,185,106,0.35));
+  z-index:50; outline:none;
+}
+
+.evidence--newspaper{ --x:var(--newspaper-x); --y:var(--newspaper-y); --w:var(--newspaper-w); --rot:var(--newspaper-rot); }
+.evidence--watch{     --x:var(--watch-x);     --y:var(--watch-y);     --w:var(--watch-w);     --rot:var(--watch-rot); }
+.evidence--letter{    --x:var(--letter-x);    --y:var(--letter-y);    --w:var(--letter-w);    --rot:var(--letter-rot); }
+
+.evidence-tooltip{
+  position:absolute; top:-2.1em; left:50%; transform:translateX(-50%);
+  font-family:var(--font-hand); font-size:1rem; color:var(--amber);
+  opacity:0; transition:opacity 0.25s ease 0.15s; white-space:nowrap;
+  text-shadow:0 2px 6px rgba(0,0,0,0.8); pointer-events:none;
+}
+.evidence:hover .evidence-tooltip{ opacity:0.95; }
+
+/* ---- code box ---- */
+.lockbox{
+  position:absolute; left:var(--box-x); top:var(--box-y); width:var(--box-w);
+  transform:translate(-50%,-50%); z-index:45;
+  filter:drop-shadow(0 22px 30px rgba(0,0,0,0.6));
+}
+.box-img{ position:absolute; inset:0; width:100%; height:auto; display:block; }
+.box-img--closed{ position:relative; opacity:1; transition:opacity 0.55s ease; }
+.box-img--open{ opacity:0; transition:opacity 0.55s ease; }
+.lockbox.is-open .box-img--closed{ opacity:0; }
+.lockbox.is-open .box-img--open{ opacity:1; }
+
+.lockbox:not(.is-ready):not(.is-open) .box-img,
+.lockbox:not(.is-ready):not(.is-open) .drums{
+  filter:brightness(0.62) saturate(0.75);
+}
+.lockbox.is-ready .box-img{
+  filter:drop-shadow(0 0 22px rgba(230,185,106,0.45));
+}
+.lockbox.is-ready{ animation:boxPulse 2.2s ease-in-out infinite; }
+@keyframes boxPulse{
+  0%,100%{ filter:drop-shadow(0 22px 30px rgba(0,0,0,0.6)); }
+  50%{ filter:drop-shadow(0 22px 30px rgba(0,0,0,0.6)) drop-shadow(0 0 26px rgba(230,185,106,0.4)); }
+}
+.lockbox.shake{ animation:boxShake 0.45s ease; }
+@keyframes boxShake{
+  0%,100%{ transform:translate(-50%,-50%); }
+  20%{ transform:translate(calc(-50% + 5px),-50%) rotate(-1deg); }
+  40%{ transform:translate(calc(-50% - 4px),-50%) rotate(1deg); }
+  60%{ transform:translate(calc(-50% + 3px),-50%) rotate(-0.6deg); }
+  80%{ transform:translate(calc(-50% - 2px),-50%) rotate(0.6deg); }
+}
+.lockbox.is-open{ animation:none; }
+
+/* digit windows, positioned to match the real slot cut-outs in the PNG */
+.drums{
+  position:absolute; inset:0; z-index:2; pointer-events:none;
+  opacity:1; transition:opacity 0.4s ease;
+}
+.lockbox.is-open .drums{ opacity:0; }
+.lockbox.is-open .drum{ pointer-events:none; }
+.drum{
+  position:absolute; top:31.3%; height:34.4%; width:11.2%;
+  display:flex; align-items:center; justify-content:center;
+  pointer-events:auto; cursor:ns-resize;
+}
+.drum[data-drum="0"]{ left:28.6%; }
+.drum[data-drum="1"]{ left:44.1%; }
+.drum[data-drum="2"]{ left:59.7%; }
+.drum-digit{
+  font-family:var(--font-display); font-weight:900; color:#f0dcb0;
+  font-size:min(6vw, 3.2vh); text-shadow:0 0 10px rgba(240,220,176,0.35);
+  display:inline-block;
+}
+.drum-digit.is-spinning{ animation:spinDigit 0.16s ease; }
+@keyframes spinDigit{
+  0%{ transform:translateY(-90%); opacity:0; } 60%{ transform:translateY(6%); opacity:1; } 100%{ transform:translateY(0); }
+}
+
+.lockbox-hotspot{
+  position:absolute; left:49.3%; top:77.6%; width:9%; aspect-ratio:1;
+  transform:translate(-50%,-50%); border-radius:50%; z-index:3;
+  transition:box-shadow 0.3s ease;
+}
+.lockbox.is-ready .lockbox-hotspot:hover{ box-shadow:0 0 22px 6px rgba(230,185,106,0.4); }
+
+.lockbox-message{
+  position:absolute; left:50%; top:108%; transform:translateX(-50%);
+  width:180%; text-align:center;
+  margin:0; font-family:var(--font-hand); font-size:min(2.4vw,1.15rem); color:var(--amber);
+  opacity:0; transition:opacity 0.4s ease; white-space:nowrap;
+  text-shadow:0 2px 6px rgba(0,0,0,0.8);
+}
+.lockbox-message.show{ opacity:1; }
+
+/* the sealed letter resting inside the open box — hidden until the box
+   is open, then sits on the velvet lid interior until clicked */
+.box-envelope{
+  position:absolute;
+  left:var(--box-envelope-x); top:var(--box-envelope-y); width:var(--box-envelope-w);
+  transform:translate(-50%,-50%) rotate(-1deg);
+  z-index:4;
+  background:none; border:none; padding:0; cursor:pointer;
+  opacity:0; pointer-events:none;
+  transition:opacity 0.5s ease 0.15s, transform 0.25s ease;
+  filter:drop-shadow(0 10px 16px rgba(0,0,0,0.5));
+}
+.box-envelope img{ width:100%; height:auto; display:block; pointer-events:none; }
+.lockbox.is-open .box-envelope{ opacity:1; pointer-events:auto; }
+.box-envelope:hover, .box-envelope:focus-visible{
+  transform:translate(-50%,-50%) rotate(-1deg) scale(1.04);
+  filter:drop-shadow(0 14px 22px rgba(0,0,0,0.6)) drop-shadow(0 0 14px rgba(230,185,106,0.35));
+  outline:none;
+}
+.box-envelope.is-taken{
+  transform:translate(-50%,-70%) scale(1.08); opacity:0;
+  transition:transform 0.5s ease, opacity 0.5s ease; pointer-events:none;
+}
+
+/* ---------------------------------------------------------
+   EVIDENCE ZOOM LAYER — the physical item IS the modal
+--------------------------------------------------------- */
+.zoom-layer{ position:fixed; inset:0; z-index:90; display:flex; align-items:center; justify-content:center; }
+.zoom-backdrop{
+  position:absolute; inset:0; background:rgba(6,6,10,0.72); opacity:0; transition:opacity 0.35s ease;
+}
+.zoom-layer.is-visible .zoom-backdrop{ opacity:1; }
+.zoom-img{
+  position:fixed; z-index:100;
+  filter:drop-shadow(0 30px 60px rgba(0,0,0,0.7));
+  transition:top 0.55s cubic-bezier(.2,.8,.25,1), left 0.55s cubic-bezier(.2,.8,.25,1),
+             width 0.55s cubic-bezier(.2,.8,.25,1), height 0.55s cubic-bezier(.2,.8,.25,1),
+             transform 0.55s cubic-bezier(.2,.8,.25,1);
+}
+
+/* ---------------------------------------------------------
+   SCENE 2 — envelope
+--------------------------------------------------------- */
+.dust-layer{ position:fixed; inset:0; pointer-events:none; z-index:5; overflow:hidden; }
+.mote{ position:absolute; width:3px; height:3px; border-radius:50%; background:rgba(230,185,106,0.35); filter:blur(0.5px); animation:drift 18s linear infinite; }
+.m1{ left:18%; top:100%; animation-delay:0s; } .m2{ left:38%; top:100%; animation-delay:-4s; }
+.m3{ left:62%; top:100%; animation-delay:-9s; } .m4{ left:80%; top:100%; animation-delay:-13s; }
+@keyframes drift{
+  0%{ transform:translateY(0); opacity:0; } 10%{ opacity:1; } 90%{ opacity:0.6; }
+  100%{ transform:translateY(-110vh) translateX(30px); opacity:0; }
+}
+.scene--envelope{
+  z-index:20; background:#050507; display:flex; align-items:center; justify-content:center;
+  animation:sceneAppear 0.6s ease both;
+}
+@keyframes sceneAppear{ from{ opacity:0; } to{ opacity:1; } }
+.light-beam{
+  position:absolute; top:-10%; left:50%; width:38%; height:70%; transform:translateX(-50%) rotate(3deg);
+  background:linear-gradient(180deg, rgba(230,185,106,0.12), transparent 80%); filter:blur(6px); pointer-events:none;
+}
+.envelope{
+  position:relative; width:min(46vw, 460px); height:min(38vh, 340px);
+  background:none; border:none; padding:0; cursor:pointer;
+  animation:envelopeIn 1.1s ease 0.3s both;
+}
+@keyframes envelopeIn{ from{ opacity:0; transform:scale(0.7); } to{ opacity:1; transform:scale(1); } }
+.envelope-img{
+  position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+  max-width:100%; max-height:100%; width:auto; height:auto;
+  display:block;
+  filter:drop-shadow(0 18px 34px rgba(0,0,0,0.55));
+  transition:opacity 0.5s ease, transform 0.5s ease;
+}
+.envelope-img--closed{ opacity:1; }
+.envelope-img--open{ opacity:0; transform:translate(-50%,-50%) scale(0.96); }
+.envelope:hover .envelope-img--closed{ transform:translate(-50%,-50%) scale(1.03); }
+.envelope.is-open .envelope-img--closed{ opacity:0; transform:translate(-50%,-50%) scale(1.05); }
+.envelope.is-open .envelope-img--open{ opacity:1; transform:translate(-50%,-50%) scale(1); }
+
+/* ---------------------------------------------------------
+   SCENE 3 — final case dossier
+--------------------------------------------------------- */
+.scene--letter-final{
+  z-index:30; background:radial-gradient(ellipse at center, #1a1620 0%, #08070a 80%);
+  display:flex; align-items:center; justify-content:center; flex-direction:column; gap:22px;
+  padding:4vh 3vw;
+}
+
+/* the dossier itself — sized to the art's own aspect ratio so every child
+   positioned by percentage lines up with the source PNG regardless of
+   viewport size (same technique as .lockbox/.stage elsewhere) */
+.dossier{
+  position:relative;
+  width:clamp(900px, 76vw, 1450px);
+  aspect-ratio:1536 / 1024;
+  max-width:94vw; max-height:82vh;
+  opacity:0; transform:translateY(25px) scale(0.96);
+  transition:opacity 0.85s cubic-bezier(.22,.8,.3,1) 0.3s, transform 0.85s cubic-bezier(.22,.8,.3,1) 0.3s;
+}
+.dossier.is-visible{ opacity:1; transform:translateY(0) scale(1); }
+
+.dossier-art{
+  position:absolute; inset:0; width:100%; height:100%; z-index:2;
+  pointer-events:none; filter:drop-shadow(0 26px 50px rgba(0,0,0,0.6));
+}
+
+/* the personal photo, in the transparent window already cut into the
+   dossier art — sits BELOW the art so the art's own photo-corners and
+   paperclip naturally overlap its edges */
+.dossier-photo-frame{
+  position:absolute; z-index:1; overflow:hidden;
+  left:var(--dossier-photo-x); top:var(--dossier-photo-y);
+  width:var(--dossier-photo-w); height:var(--dossier-photo-h);
+  opacity:0; transition:opacity 0.9s ease;
+}
+.dossier.is-photo-visible .dossier-photo-frame{ opacity:1; }
+.dossier-photo{
+  width:100%; height:100%; display:block; object-fit:cover;
+  object-position:var(--photo-x) var(--photo-y);
+  filter:saturate(0.75); transition:filter 0.9s ease;
+}
+.dossier.is-photo-visible .dossier-photo{ filter:saturate(1); }
+
+/* the report — HTML text laid over the blank right-hand page, so it stays
+   editable and legible instead of being baked into the art */
+.dossier-report{
+  position:absolute; z-index:3;
+  left:var(--dossier-report-x); top:var(--dossier-report-y);
+  width:var(--dossier-report-w); height:var(--dossier-report-h);
+  overflow:hidden;
+  font-family:var(--font-body); /* Georgia/Times — see note below on why not Courier */
+  color:#3a2f22;
+  text-align:left;
+}
+/* every paragraph/list starts at the same left edge (the container's own
+   edge — nothing here gets its own indent) and never gets justified, so
+   the ragged right edge stays natural instead of stretching short lines */
+.dossier-report p, .dossier-report ul{ margin:0 0 clamp(6px, 0.9vw, 11px); text-align:left; }
+
+.report-evidence-title,
+.report-status,
+.report-line,
+.report-wish,
+.report-emphasis,
+.report-closing,
+.report-evidence-list li{
+  opacity:0; transform:translateY(5px);
+  transition:opacity 0.45s ease, transform 0.45s ease;
+}
+.report-evidence-title.show,
+.report-status.show,
+.report-line.show,
+.report-wish.show,
+.report-emphasis.show,
+.report-closing.show,
+.report-evidence-list li.show{ opacity:1; transform:translateY(0); }
+
+/* the two short uppercase labels keep a typewriter accent — at one line
+   each they're in no danger of overflowing, whatever monospace the
+   platform actually substitutes for "Courier New" */
+.report-evidence-title{
+  font-family:'Courier New', 'Courier Prime', monospace;
+  font-weight:700; font-size:clamp(11px, 0.85vw, 14px);
+  letter-spacing:0.14em; color:#241a10;
+}
+.report-status{
+  font-family:'Courier New', 'Courier Prime', monospace;
+  font-weight:700; font-size:clamp(11px, 0.85vw, 14px); letter-spacing:0.08em; color:var(--wax);
+}
+/* everything that actually has to wrap stays in the project's ordinary
+   proportional serif — a monospace font's fixed character width varies a
+   lot by platform (real "Courier New" on Windows runs noticeably wider
+   than Linux/Mac's substitutes), which was pushing this text past its
+   safe area on some machines even though it measured fine here */
+.report-evidence-list{ list-style:none; padding:0; font-size:clamp(11px, 0.85vw, 14px); line-height:1.48; }
+.report-line, .report-wish, .report-closing{
+  font-size:clamp(11px, 0.86vw, 14px); line-height:1.5;
+}
+/* everything after the case status is the personal part of the report —
+   centered on the page, so it reads as a closing note rather than one
+   more line of the evidence log above it */
+.dossier-report .report-line,
+.dossier-report .report-wish,
+.dossier-report .report-emphasis,
+.dossier-report .report-closing{ text-align:center; }
+.dossier-report .report-line{ margin-top:clamp(8px, 1.1vw, 14px); }
+.dossier-report > :last-child{ margin-bottom:0; }
+.report-emphasis{
+  font-weight:700; font-size:clamp(12px, 0.98vw, 16px); line-height:1.45; color:#241a10;
+}
+
+.case-closed-stamp{
+  position:absolute; left:50%; top:92.5%; z-index:4;
+  transform:translate(-50%,-50%) rotate(-2deg);
+  text-align:center; color:var(--wax);
+  animation:stampHit 0.4s cubic-bezier(.2,1.2,.4,1) both;
+}
+@keyframes stampHit{
+  0%{ opacity:0; transform:translate(-50%,-50%) scale(1.30) rotate(-4deg); }
+  60%{ opacity:1; transform:translate(-50%,-50%) scale(0.94) rotate(-2deg); }
+  100%{ opacity:1; transform:translate(-50%,-50%) scale(1) rotate(-2deg); }
+}
+.stamp-main{
+  display:block; font-family:var(--font-display); font-weight:900;
+  font-size:clamp(1.1rem, 2.4vw, 2rem); letter-spacing:0.15em;
+  border:4px solid var(--wax); padding:6px 18px; border-radius:6px;
+  background:rgba(8,7,10,0.35);
+}
+.stamp-sub{
+  display:block; font-family:var(--font-display); letter-spacing:0.3em;
+  font-size:clamp(0.5rem, 0.75vw, 0.65rem); margin-top:6px; color:#d8c69c;
+}
+.ticket-button{
+  background:#ece1c4; color:#2a2118; font-family:var(--font-display); font-weight:700; letter-spacing:0.12em;
+  font-size:0.85rem; padding:10px 26px; border:1px solid #b7a377;
+  clip-path:polygon(4% 0,96% 0,100% 50%,96% 100%,4% 100%,0 50%); box-shadow:var(--shadow-soft);
+  animation:fadeIn 0.6s ease 0.3s both; transition:transform 0.2s ease;
+}
+@keyframes fadeIn{ to{ opacity:1; } }
+.ticket-button:hover{ transform:translateY(-2px) scale(1.03); }
