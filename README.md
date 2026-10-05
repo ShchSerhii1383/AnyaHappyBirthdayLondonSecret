@@ -1,9 +1,26 @@
-# The London Case — composition draft (real assets, v10)
+# The London Case — composition draft (real assets, v11)
 
 Open `index.html` directly in a browser. No server, no internet, no build
 step.
 
-## Latest changes (v10)
+## Latest changes (v11)
+
+**Background melody added.** `assets/audio/music.mp3` loops for the whole
+game, from the title card to the final dossier. File and volume are set in
+`GAME_CONFIG.music` at the top of `js/game.js`.
+
+Browsers don't allow sound before the player has touched the page, so the
+melody starts on the very first click / tap / key press (in practice: the
+click on the title card). If the title card is left to time out on its
+own, the board appears silently and the melody starts with the first click
+on it. The old unused `ambient` sound slot is gone — `music` replaces it.
+
+**Where the final greeting text lives:** `index.html`, the
+`<div class="dossier-report">` block inside "SCENE 3: FINAL CASE DOSSIER".
+Each line is its own `<p>`/`<li>` — edit the text between the tags and
+leave the `data-step="..."` attributes alone (they drive the reveal order).
+
+## Previous changes (v10)
 
 1. **Text cleared of the torn paper flap.** The lower-left corner of the
    right-hand page has a torn flap that reaches ~57% of the dossier width —

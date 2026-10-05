@@ -7,8 +7,14 @@
 const GAME_CONFIG = {
   password: "674", // three digits, each 1-9
 
+  // background melody — loops for the whole game, from the title card on
+  music: {
+    src: "assets/audio/music.mp3",
+    volume: 0.35, // 0..1
+  },
+
+  // optional one-shot effects — any file that isn't there is skipped silently
   sounds: {
-    ambient: "assets/audio/ambient.mp3",
     paper: "assets/audio/paper.mp3",
     clock: "assets/audio/clock.mp3",
     mechanism: "assets/audio/mechanism.mp3",
@@ -66,6 +72,59 @@ const Sound = (() => {
     }
   }
   return { play };
+})();
+
+// -----------------------------------------------------------
+// BACKGROUND MUSIC
+// Browsers refuse to start audio before the player has touched the page,
+// so this tries straight away and, if that's refused, starts on the very
+// first click / tap / key press instead (whichever comes first).
+// -----------------------------------------------------------
+const Music = (() => {
+  const START_EVENTS = ["pointerdown", "keydown"];
+  let audio = null;
+  let playing = false;
+
+  function stopWaitingForGesture() {
+    START_EVENTS.forEach((type) => document.removeEventListener(type, start));
+  }
+
+  function start() {
+    if (playing || !audio) return;
+    try {
+      const attempt = audio.play();
+      if (attempt && attempt.then) {
+        attempt
+          .then(() => {
+            playing = true;
+            stopWaitingForGesture();
+          })
+          .catch(() => {
+            /* blocked until the first gesture — the listeners below retry */
+          });
+      }
+    } catch (e) {
+      /* audio must never break the game */
+    }
+  }
+
+  function init() {
+    const { src, volume } = GAME_CONFIG.music;
+    if (!src) return;
+    try {
+      audio = new Audio(src);
+      audio.loop = true;
+      audio.volume = volume;
+      audio.preload = "auto";
+    } catch (e) {
+      audio = null;
+      return;
+    }
+    START_EVENTS.forEach((type) => document.addEventListener(type, start));
+    start();
+  }
+
+  return { init };
 })();
 
 const el = {
@@ -133,7 +192,6 @@ function initIntro() {
   const reveal = () => {
     el.sceneTitle.hidden = true;
     el.sceneBoard.hidden = false;
-    Sound.play("ambient", { loop: true, volume: 0.22 });
   };
   window.setTimeout(reveal, GAME_CONFIG.titleDurationMs);
   el.sceneTitle.addEventListener("click", reveal);
@@ -472,6 +530,7 @@ function initReturnButton() {
 // BOOT
 // -----------------------------------------------------------
 function boot() {
+  Music.init();
   initRain();
   initIntro();
   initEvidence();
